@@ -1,14 +1,19 @@
 <script setup>
 const config = useRuntimeConfig();
 
-const { data: projects, pending, error } = await useFetch(`${config.public.apiBase}/projects`);
+const baseUrl = import.meta.server ? config.apiBaseInternal : config.public.apiBase;
+
+const { data: projects, pending, error } = await useFetch(`${baseUrl}/projects`, {
+  transform: (response) => response.data,
+
+  key: "home-projects"
+});
 </script>
 
 <template>
-<!-- UContainer keeps your content centered and responsive -->
   <UContainer class="py-12">
     
-    <!-- Hero Section (Using standard Tailwind for layout) -->
+    <!-- Hero Section -->
     <section class="text-center mb-16">
       <h1 class="text-5xl font-extrabold tracking-tight sm:text-6xl mb-4">
         Hi, I'm <span class="text-primary-500">Chhay Mengkim</span>
@@ -48,10 +53,9 @@ const { data: projects, pending, error } = await useFetch(`${config.public.apiBa
 
       <!-- Projects Grid -->
       <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <!-- UCard is a Nuxt UI component that handles padding and borders perfectly -->
         <UCard v-for="project in projects" :key="project.id" class="flex flex-col group overflow-hidden">
           
-          <!-- Image Placeholder (We'll use standard Tailwind for the image container) -->
+          <!-- Image Placeholder -->
           <template #header>
             <div class="bg-gray-100 dark:bg-gray-800 h-48 -m-4 flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
               <img v-if="project.image_url" :src="project.image_url" class="object-cover w-full h-full" />
@@ -65,7 +69,7 @@ const { data: projects, pending, error } = await useFetch(`${config.public.apiBa
             {{ project.summary }}
           </p>
 
-          <!-- Tech Tags (Using UBadge for a clean look) -->
+          <!-- Tech Tags -->
           <div class="flex flex-wrap gap-2 mb-4">
             <UBadge 
               v-for="tag in project.tags" 

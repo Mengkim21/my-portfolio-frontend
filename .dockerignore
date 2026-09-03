@@ -1,0 +1,10 @@
+# Dependency directories
+node_modules
+.nuxt
+.output
+dist
+.git
+
+# Environment Variables
+.env
+.env.*
