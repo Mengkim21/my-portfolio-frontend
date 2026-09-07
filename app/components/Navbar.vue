@@ -26,10 +26,20 @@ const items = ref<NavigationMenuItem[]>([
     to: '/projects'
   },
   {
-    label: 'Admin',
-    icon: 'i-heroicons-lock-closed',
-    to: '/admin'
-  }
+    label: 'Education',
+    icon: 'i-heroicons-book-open',
+    to: '/education'
+  },
+  {
+    label: 'About',
+    icon: 'i-heroicons-information-circle',
+    to: '/about'
+  },
+  {
+    label: 'Contact',
+    icon: 'i-heroicons-envelope',
+    to: '/contact'
+  },
 ])
 </script>
 

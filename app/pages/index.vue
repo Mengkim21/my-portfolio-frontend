@@ -1,12 +1,15 @@
 <script setup>
 const config = useRuntimeConfig();
 
-const baseUrl = import.meta.server ? config.apiBaseInternal : config.public.apiBase;
-
-const { data: projects, pending, error } = await useFetch(`${baseUrl}/projects`, {
+const { data: projects, pending } = await useFetch(`${config.public.apiBase}/projects`, {
   transform: (response) => response.data,
 
-  key: "home-projects"
+  key: "home-projects-list",
+
+  getCachedData: (key) => {
+    const data = useNuxtApp().payload.data[key] || useNuxtApp().static.data[key]
+    return data
+  }
 });
 </script>
 
@@ -36,23 +39,8 @@ const { data: projects, pending, error } = await useFetch(`${baseUrl}/projects`,
         <UButton variant="link" to="/projects" trailing-icon="i-heroicons-arrow-right">See all</UButton>
       </div>
 
-      <!-- Loading State -->
-      <div v-if="pending" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <USkeleton v-for="i in 3" :key="i" class="h-64 w-full" />
-      </div>
-
-      <!-- Error State -->
-      <UAlert
-        v-else-if="error"
-        icon="i-heroicons-exclamation-triangle"
-        color="red"
-        variant="soft"
-        title="Backend Connection Error"
-        description="Make sure your Dockerized API is running on port 5000."
-      />
-
       <!-- Projects Grid -->
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div v-if="projects && projects.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <UCard v-for="project in projects" :key="project.id" class="flex flex-col group overflow-hidden">
           
           <!-- Image Placeholder -->
@@ -105,7 +93,21 @@ const { data: projects, pending, error } = await useFetch(`${baseUrl}/projects`,
           </template>
         </UCard>
       </div>
-    </section>
 
+      <!-- Empty State -->
+      <div v-else-if="!pending" class="text-center py-20 text-gray-500">
+        No projects found in the database.
+      </div>
+
+      <!-- Error State -->
+      <UAlert
+        v-else-if="error"
+        icon="i-heroicons-exclamation-triangle"
+        color="red"
+        variant="soft"
+        title="Backend Connection Error"
+        description="Make sure your Dockerized API is running on port 5000."
+      />
+    </section>
   </UContainer>
 </template>
