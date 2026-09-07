@@ -8,8 +8,13 @@ export default defineNuxtConfig({
       apiBase: process.env.NUXT_PUBLIC_API_BASE
     }
   },
-  modules: [
-    '@nuxt/ui'
-  ],
+  modules: ['@nuxt/ui', '@nuxtjs/supabase'],
+  supabase: {
+    redirectOptions: {
+      login: '/admin',
+      callback: '/confirm',
+      exclude: ['/'],
+    },
+  },
   css: ['~/assets/css/main.css']
 })
