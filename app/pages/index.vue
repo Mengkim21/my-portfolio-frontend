@@ -1,15 +1,22 @@
 <script setup>
 const config = useRuntimeConfig();
+const baseUrl = import.meta.server ? config.public.apiBase : (config.apiBaseInternal || config.public.apiBase)
 
-const { data: projects, pending } = await useFetch(`${config.public.apiBase}/projects`, {
+const { data: projects, pending } = await useFetch(`${baseUrl}/projects`, {
   transform: (response) => response.data,
 
-  key: "home-projects-list",
+  key: "home-projects",
 
   getCachedData: (key) => {
     const data = useNuxtApp().payload.data[key] || useNuxtApp().static.data[key]
     return data
   }
+});
+
+const featuredProjects = computed(() => {
+  if (!projects.value) return [];
+  const featured = projects.value.filter((p) => p.is_featured);
+  return featured.length > 0 ? featured : projects.value;
 });
 </script>
 
@@ -41,7 +48,7 @@ const { data: projects, pending } = await useFetch(`${config.public.apiBase}/pro
 
       <!-- Projects Grid -->
       <div v-if="projects && projects.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <UCard v-for="project in projects" :key="project.id" class="flex flex-col group overflow-hidden">
+        <UCard v-for="project in featuredProjects" :key="project.id" class="flex flex-col group overflow-hidden">
           
           <!-- Image Placeholder -->
           <template #header>
@@ -52,22 +59,28 @@ const { data: projects, pending } = await useFetch(`${config.public.apiBase}/pro
           </template>
 
           <!-- Project Details -->
-          <h3 class="text-xl font-bold mb-2">{{ project.title }}</h3>
-          <p class="text-gray-500 dark:text-gray-400 text-sm line-clamp-2 mb-4">
-            {{ project.summary }}
-          </p>
+          <div class="flex-1 space-y-2">
+            <div class="flex items-center justify-between">
+              <h3 class="text-xl font-bold line-clamp-1">{{ project.title }}</h3>
+              <UBadge v-if="project.is_featured" color="warning" variant="subtle" size="xs">Featured</UBadge>
+            </div>
+            
+            <p class="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
+              {{ project.summary || 'No summary provided.' }}
+            </p>
 
-          <!-- Tech Tags -->
-          <div class="flex flex-wrap gap-2 mb-4">
-            <UBadge 
-              v-for="tag in project.tags" 
-              :key="tag.id"
-              size="xs"
-              variant="subtle"
-              :style="{ color: tag.color_hex, backgroundColor: tag.color_hex + '20' }"
-            >
-              {{ tag.name }}
-            </UBadge>
+            <!-- Tags -->
+            <div class="flex flex-wrap gap-1.5 pt-2">
+              <UBadge 
+                v-for="tag in project.tags" 
+                :key="tag.id" 
+                size="xs" 
+                variant="subtle"
+                :style="{ color: tag.color_hex, backgroundColor: tag.color_hex + '15' }"
+              >
+                {{ tag.name }}
+              </UBadge>
+            </div>
           </div>
 
           <!-- Actions -->

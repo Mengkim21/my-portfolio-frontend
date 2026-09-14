@@ -1,5 +1,5 @@
 <script setup>
-const supabase = useSupabaseClient();
+const { login } = useAuth();
 const router = useRouter();
 
 const email = ref('');
@@ -10,17 +10,11 @@ const toast = useToast();
 const handleLogin = async () => {
   loading.value = true;
   try {
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email.value,
-      password: password.value
-    });
-
-    if (error) throw error;
-    
-    toast.add({ title: 'Welcome back!', color: 'green' });
+    await login(email.value, password.value);
+    toast.add({ title: 'Welcome back!', color: 'primary' });
     router.push('/admin/dashboard');
   } catch (err) {
-    toast.add({ title: 'Login Failed', color: 'red' });
+    toast.add({ title: 'Login Failed', color: 'error' });
   } finally {
     loading.value = false;
   }
