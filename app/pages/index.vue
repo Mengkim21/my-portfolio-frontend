@@ -1,6 +1,6 @@
 <script setup>
 const config = useRuntimeConfig();
-const baseUrl = import.meta.server ? config.public.apiBase : (config.apiBaseInternal || config.public.apiBase)
+const baseUrl = import.meta.server ? (config.apiBaseInternal || config.public.apiBase) : config.public.apiBase;
 
 const { data: projects, pending } = await useFetch(`${baseUrl}/projects`, {
   transform: (response) => response.data,
@@ -74,8 +74,8 @@ const featuredProjects = computed(() => {
               <UBadge 
                 v-for="tag in project.tags" 
                 :key="tag.id" 
-                size="xs" 
-                variant="subtle"
+                size="sm" 
+                variant="outline"
                 :style="{ color: tag.color_hex, backgroundColor: tag.color_hex + '15' }"
               >
                 {{ tag.name }}
@@ -85,15 +85,24 @@ const featuredProjects = computed(() => {
 
           <!-- Actions -->
           <template #footer>
-            <div class="flex justify-between items-center">
-              <UButton 
-                v-if="project.github_url" 
-                :to="project.github_url" 
-                target="_blank" 
-                icon="i-simple-icons-github" 
-                color="gray" 
-                variant="ghost" 
-              />
+            <div class="flex justify-between items-center gap-2">
+              <!-- Repositories-->
+              <div class="flex flex-wrap gap-1">
+                <template v-if="project.github_urls && project.github_urls.length > 0">
+                  <UButton 
+                    v-for="(repo, rIdx) in project.github_urls"
+                    :key="rIdx"
+                    :to="repo.url" 
+                    target="_blank" 
+                    icon="i-simple-icons-github" 
+                    color="gray" 
+                    variant="ghost" 
+                    :label="project.github_urls.length > 1 ? repo.label : undefined"
+                  />
+                </template>
+              </div>
+
+              <!-- Live Demo -->
               <UButton 
                 v-if="project.live_url" 
                 :to="project.live_url" 
