@@ -40,14 +40,12 @@ const newTagName = ref('');
 const newTagColor = ref('#3b82f6');
 
 watch(() => form.title, (newTitle) => {
-  if (!isEditing.value) {
-    form.slug = newTitle
-      .toLowerCase()
-      .trim()
-      .replace(/[^\w\s-]/g, '')
-      .replace(/[\s_-]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-  }
+  form.slug = newTitle
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 });
 
 const addGithubUrl = () => {
@@ -124,7 +122,7 @@ const openEditModal = (project: any) => {
   isModalOpen.value = true;
 };
 
-const handleCreateProject = async () => {
+const handleSubmit = async () => {
   submitting.value = true;
   try {
     const url = isEditing.value
@@ -154,7 +152,7 @@ const handleCreateProject = async () => {
     await Promise.all([refreshProjects(), refreshTags()]);
   } catch (err: any) {
     toast.add({
-      title: 'Failed to create project',
+      title: 'Action failed',
       description: err.data?.error || err.message,
       color: 'error'
     });
@@ -250,7 +248,7 @@ const handleDelete = async (id: string) => {
         </template>
   
           <!-- Input detail form -->
-          <form @submit.prevent="handleCreateProject" class="space-y-4 flex flex-col">
+          <form @submit.prevent="handleSubmit" class="space-y-4 flex flex-col">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <UFormField label="Title" required>
                 <UInput v-model="form.title" placeholder="My Awesome App" required  class="w-full"/>
@@ -276,6 +274,8 @@ const handleDelete = async (id: string) => {
                   <UInput v-model="repo.url" placeholder="https://github.com/..." class="flex-1" icon="i-simple-icons-github" />
                   <UButton icon="i-heroicons-trash" color="error" variant="ghost" size="sm" @click="removeGithubUrl(index)" />
                 </div>
+
+                <UButton type="button" icon="i-heroicons-plus" label="Add Another Repo Link" size="xs" color="neutral" variant="soft" @click="addGithubUrl" />
               </div>
             </UFormField>
   
@@ -294,7 +294,7 @@ const handleDelete = async (id: string) => {
                   size="sm"
                   variant="solid"
                   :style="{ backgroundColor: tag.color_hex }"
-                  class="flex items-center gap-2 text-white"
+                  class="flex items-center gap-2 text-gray-800"
                 >
                   <span>{{ tag.name }}</span>
                   <button type="button" @click="removeTag(idx)" class="hover:opacity-75">
